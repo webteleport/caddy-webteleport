@@ -28,6 +28,7 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 }
 
 func (m *Middleware) Provision(ctx caddy.Context) error {
+	m.Deplay = "500ms"
 	return nil
 }
 
