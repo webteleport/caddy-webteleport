@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"math/rand"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -59,7 +60,10 @@ func (m *Middleware) Validate() error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	time.Sleep(100 * time.Millisecond)
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	time.Sleep(time.Duration(r1.Intn(100)+450) * time.Millisecond)
+
 	m.w.Write([]byte(r.RemoteAddr))
 	return next.ServeHTTP(w, r)
 }
