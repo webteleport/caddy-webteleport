@@ -3,10 +3,9 @@ package caddydelay
 import (
 	"fmt"
 	"io"
-	"net/http"
-	"os"
-	"time"
 	"math/rand"
+	"net/http"
+	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -16,37 +15,24 @@ import (
 
 func init() {
 	caddy.RegisterModule(Middleware{})
-	httpcaddyfile.RegisterHandlerDirective("visitor_ip", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("http_delay", parseCaddyfile)
 }
 
-// Middleware implements an HTTP handler that writes the
-// visitor's IP address to a file or stream.
 type Middleware struct {
-	// The file or stream to write to. Can be "stdout"
-	// or "stderr".
-	Output string `json:"output,omitempty"`
+	Deplay string `json:"deplay,omitempty"`
 
 	w io.Writer
 }
 
-// CaddyModule returns the Caddy module information.
 func (Middleware) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID:  "http.handlers.visitor_ip",
+		ID:  "http.handlers.http_delay",
 		New: func() caddy.Module { return new(Middleware) },
 	}
 }
 
 // Provision implements caddy.Provisioner.
 func (m *Middleware) Provision(ctx caddy.Context) error {
-	switch m.Output {
-	case "stdout":
-		m.w = os.Stdout
-	case "stderr":
-		m.w = os.Stderr
-	default:
-		return fmt.Errorf("an output stream is required")
-	}
 	return nil
 }
 
@@ -71,7 +57,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
-		if !d.Args(&m.Output) {
+		if !d.Args(&m.Deplay) {
 			return d.ArgErr()
 		}
 	}
