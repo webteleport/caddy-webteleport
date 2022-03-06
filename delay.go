@@ -14,7 +14,7 @@ import (
 
 func init() {
 	caddy.RegisterModule(Middleware{})
-	httpcaddyfile.RegisterHandlerDirective("deplay", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("delay", parseCaddyfile)
 }
 
 type Middleware struct {
@@ -38,12 +38,12 @@ func (m *Middleware) Validate() error {
 }
 
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	logrus.Info("http_deplay start")
+	logrus.Info("http_delay start")
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	time.Sleep(time.Duration(r1.Intn(100)+450) * time.Millisecond)
 
-	logrus.Info("http_deplay end")
+	logrus.Info("http_delay end")
 
 	return next.ServeHTTP(w, r)
 }
