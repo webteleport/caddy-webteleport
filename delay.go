@@ -49,10 +49,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 }
 
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	for d.Next() {
-		if !d.Args(&m.Duration) {
-			return d.ArgErr()
-		}
+	for d.Next() && d.NextArg() {
+		m.Duration = d.Val()
 	}
 	return nil
 }
