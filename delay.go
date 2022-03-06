@@ -3,7 +3,6 @@ package delay
 import (
 	"math/rand"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -11,18 +10,17 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 func init() {
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("delay", parseCaddyfile)
-
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetOutput(os.Stdout)
-	logrus.SetLevel(logrus.InfoLevel)
+	logrus.Info("delay module inited")
 }
 
 type Middleware struct {
+	logger   *zap.Logger
 	Duration string `json:"duration,omitempty"`
 }
 
@@ -34,7 +32,9 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 }
 
 func (m *Middleware) Provision(ctx caddy.Context) error {
+	m.logger = ctx.Logger(m)
 	m.Duration = "500ms"
+	m.logger.Info("delay module inited")
 	return nil
 }
 
@@ -43,12 +43,12 @@ func (m *Middleware) Validate() error {
 }
 
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	logrus.Info("http_delay start")
+	m.logger.Info("http_delay start")
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	time.Sleep(time.Duration(r1.Intn(100)+450) * time.Millisecond)
 
-	logrus.Info("http_delay end")
+	m.logger.Info("http_delay end")
 
 	return next.ServeHTTP(w, r)
 }
