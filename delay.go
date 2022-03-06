@@ -3,6 +3,7 @@ package delay
 import (
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -15,6 +16,10 @@ import (
 func init() {
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("delay", parseCaddyfile)
+
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.InfoLevel)
 }
 
 type Middleware struct {
