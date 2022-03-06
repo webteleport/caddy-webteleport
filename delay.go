@@ -1,4 +1,4 @@
-package caddydelay
+package delay
 
 import (
 	"math/rand"
@@ -9,15 +9,16 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
 	caddy.RegisterModule(Middleware{})
-	httpcaddyfile.RegisterHandlerDirective("http_delay", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("deplay", parseCaddyfile)
 }
 
 type Middleware struct {
-	Deplay string `json:"deplay,omitempty"`
+	Duration string `json:"duration,omitempty"`
 }
 
 func (Middleware) CaddyModule() caddy.ModuleInfo {
@@ -28,7 +29,7 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 }
 
 func (m *Middleware) Provision(ctx caddy.Context) error {
-	m.Deplay = "500ms"
+	m.Duration = "500ms"
 	return nil
 }
 
@@ -37,16 +38,19 @@ func (m *Middleware) Validate() error {
 }
 
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	logrus.Info("http_deplay start")
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	time.Sleep(time.Duration(r1.Intn(100)+450) * time.Millisecond)
+
+	logrus.Info("http_deplay end")
 
 	return next.ServeHTTP(w, r)
 }
 
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
-		if !d.Args(&m.Deplay) {
+		if !d.Args(&m.Duration) {
 			return d.ArgErr()
 		}
 	}
