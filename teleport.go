@@ -1,4 +1,4 @@
-package delay
+package teleport
 
 import (
 	"math/rand"
